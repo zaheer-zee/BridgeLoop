@@ -26,7 +26,7 @@ export default function ProductStory() {
         loadedCount++;
         if (loadedCount === TOTAL_FRAMES && canvasRef.current) {
           const ctx = canvasRef.current.getContext("2d");
-          if (ctx && loadedImages[0]) renderFrame(ctx, loadedImages[0]);
+          if (ctx && loadedImages[0]) renderFrame(ctx, loadedImages[0], 0);
         }
       };
       loadedImages.push(img);
@@ -44,22 +44,36 @@ export default function ProductStory() {
         Math.max(0, Math.floor(mappedProgress * (TOTAL_FRAMES - 1)))
       );
       const ctx = canvasRef.current.getContext("2d");
-      const img = images[frameIndex];
+      
+      let img = images[frameIndex];
+      let renderIndex = frameIndex;
+
+      // Fallback: If current frame is not complete, find the closest previous loaded frame
+      while (renderIndex >= 0 && (!img || !img.complete)) {
+        renderIndex--;
+        img = images[renderIndex];
+      }
+
       if (ctx && img && img.complete) {
-        requestAnimationFrame(() => renderFrame(ctx, img));
+        requestAnimationFrame(() => renderFrame(ctx, img, latest));
       }
     });
     return () => unsub();
   }, [scrollYProgress, images]);
 
-  const renderFrame = (ctx: CanvasRenderingContext2D, img: HTMLImageElement) => {
+  const renderFrame = (ctx: CanvasRenderingContext2D, img: HTMLImageElement, progress: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+    
+    // Adjust scale factor to make the 3D object smaller as requested
+    const baseScale = Math.max(canvas.width / img.width, canvas.height / img.height);
+    const scale = baseScale; 
+    
     const x = canvas.width / 2 - (img.width / 2) * scale;
     const y = canvas.height / 2 - (img.height / 2) * scale;
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
     ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
@@ -112,7 +126,7 @@ export default function ProductStory() {
           {/* Step 2: Track. Compare. Grow. — one by one from bottom */}
           <motion.div
             style={{ opacity: opTCGOut }}
-            className="absolute top-[30%] left-0 right-0 flex flex-col items-center text-center space-y-4"
+            className="absolute top-[50%] -translate-y-1/2 left-0 right-0 flex flex-col items-center text-center space-y-4"
           >
             <motion.div
               style={{ opacity: opTrack, y: yTrack, scale: scaleTrack }}

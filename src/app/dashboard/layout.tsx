@@ -1,15 +1,20 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Package, Search, HelpCircle, User, Bell, Box, Sun, Moon, X } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import BackgroundParticles from '@/components/BackgroundParticles';
+
+const BackgroundParticles = dynamic(() => import('@/components/BackgroundParticles'), { ssr: false });
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [alertOpen, setAlertOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
   
   const navItems = [
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
@@ -71,8 +76,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
              className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 transition-all w-full"
            >
-             {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-             <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+             {mounted && (theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />)}
+             <span>{mounted ? (theme === 'dark' ? 'Light Mode' : 'Dark Mode') : 'Theme'}</span>
            </button>
         </div>
       </aside>

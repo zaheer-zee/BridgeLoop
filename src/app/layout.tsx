@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased text-black dark:text-white bg-gray-50 dark:bg-[#0A0A0A] transition-colors duration-500`}>
+      <body suppressHydrationWarning className={`${inter.variable} font-sans antialiased text-black dark:text-white bg-gray-50 dark:bg-[#0A0A0A] transition-colors duration-500`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <NeonCursor />
           {children}

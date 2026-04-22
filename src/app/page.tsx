@@ -1,12 +1,14 @@
 "use client";
+import dynamic from "next/dynamic";
 import ProductStory from "@/components/ProductStory";
-import BackgroundParticles from "@/components/BackgroundParticles";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import FeatureReveal from "@/components/FeatureReveal";
 import BridgeloopTagline from "@/components/BridgeloopTagline";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+
+const BackgroundParticles = dynamic(() => import("@/components/BackgroundParticles"), { ssr: false });
 
 const FadeInView = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => (
   <motion.div
@@ -22,7 +24,7 @@ const FadeInView = ({ children, delay = 0, className = "" }: { children: React.R
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-transparent text-gray-900 dark:text-gray-100 font-sans selection:bg-cyan-500/30 transition-colors duration-500 overflow-x-hidden">
+    <main className="min-h-screen bg-transparent text-gray-900 dark:text-gray-100 font-sans selection:bg-cyan-500/30 transition-colors duration-500">
       <BackgroundParticles />
       <ThemeToggle />
 
@@ -41,7 +43,7 @@ export default function Home() {
         <section className="flex flex-col items-center justify-center py-8">
           <FadeInView>
             <Link href="/auth">
-              <motion.button
+              <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="group relative px-8 py-5 bg-black dark:bg-white text-white dark:text-black rounded-full font-bold text-xl md:text-2xl flex items-center space-x-3 overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.5)] dark:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-all"
@@ -49,7 +51,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
                 <span>Enter Workspace</span>
                 <ArrowRight className="group-hover:translate-x-1 transition-transform" />
-              </motion.button>
+              </motion.div>
             </Link>
           </FadeInView>
         </section>

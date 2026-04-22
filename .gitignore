@@ -34,3 +34,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# backend — never commit secrets or virtualenv
+backend/.env
+backend/venv/
+backend/__pycache__/
+*.pyc
+.env.local
