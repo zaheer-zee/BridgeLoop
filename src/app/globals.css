@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    cursor: none;
+  }
+}
+
+/* Neon cursor glow that follows the mouse */
+.neon-cursor {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34,211,238,0.7) 0%, rgba(34,211,238,0) 70%);
+  box-shadow: 0 0 15px 5px rgba(34,211,238,0.35);
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+  transition: width 0.2s, height 0.2s, box-shadow 0.2s;
+  mix-blend-mode: screen;
+}
+
+.neon-cursor.hovering {
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 0 25px 8px rgba(34,211,238,0.5);
+}
