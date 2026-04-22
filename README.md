@@ -80,20 +80,178 @@ Bridgeloop uses a **modern three-tier microservice architecture**:
 - **Profile** — User profile details
 - Real-time notification bell with dropdown alerts
 
-### 🤖 AI Pipeline (via n8n)
-1. **Cron Trigger** fires at midnight
-2. **Fetch** all tracked URLs from FastAPI (`GET /track`)
-3. **Stealth Scrape** each URL using Playwright Chromium (bot detection bypassed)
-4. **AI Extraction** via Groq Llama 3.1 — extracts price, sentiment, summary
-5. **Save** results to MongoDB (`POST /history`)
-6. **Alert** if price dropped >5% (email node)
+---
 
-### 🕵️ Stealth Scraper
-- Uses **Playwright** with **playwright-stealth** to mask all bot fingerprints
-- Hides `navigator.webdriver`, spoofs user agent, platform, and hardware concurrency
-- Handles JavaScript-rendered pages (React/Next.js competitor sites)
-- Cleans HTML with BeautifulSoup — strips scripts, styles, SVGs
-- Truncates to 5,000 characters to optimise LLM token usage
+## 🕵️ How the Stealth Scraper Works
+
+### The Problem with Normal Scraping
+
+If you use Python's `requests` library to fetch a webpage, the website instantly knows it's a bot because:
+- The request has no real browser fingerprint
+- `navigator.webdriver` is set to `true` — a dead giveaway
+- No JavaScript execution, so React/Next.js pages render as empty HTML
+- Sites like Cloudflare block it before you get a single byte of data
+
+### Our Solution — Real Browser + Disguise
+
+Instead of faking HTTP requests, we launch an **actual invisible Chromium browser** (the same engine Chrome uses) and then lie about what it is. Here's every step:
+
+```
+POST /scrape  {"url": "https://competitor.com/product"}
+       │
+       ▼
+┌─────────────────────────────────────────────────┐
+│  1. Launch real headless Chromium browser        │
+│     (invisible window, full JS engine)           │
+├─────────────────────────────────────────────────┤
+│  2. playwright-stealth patches 15 properties     │
+│     BEFORE any page loads:                       │
+│     • navigator.webdriver      → hidden          │
+│     • navigator.plugins        → fake Chrome list│
+│     • navigator.platform       → "Win32"         │
+│     • navigator.languages      → ["en-US", "en"] │
+│     • navigator.hardwareConcurrency → 8 cores    │
+│     • WebGL vendor/renderer    → spoofed         │
+│     • chrome.runtime           → stubbed as real │
+│     • sec-ch-ua headers        → real Chrome UA  │
+├─────────────────────────────────────────────────┤
+│  3. Navigate to URL, wait for DOM to load        │
+│     • Executes all JavaScript (React sites work) │
+│     • Handles cookies, redirects, lazy-loading   │
+├─────────────────────────────────────────────────┤
+│  4. Grab the full rendered HTML                  │
+├─────────────────────────────────────────────────┤
+│  5. BeautifulSoup strips all noise:              │
+│     • Removes <script>, <style>, <svg> tags      │
+│     • Removes noscript and hidden elements       │
+│     • Extracts only human-readable text          │
+├─────────────────────────────────────────────────┤
+│  6. Truncate to 5,000 characters                 │
+│     (saves LLM tokens and keeps costs at zero)   │
+└─────────────────────────────────────────────────┘
+       │
+       ▼
+  Clean text returned to n8n → sent to Groq AI
+```
+
+### Every Library Used & Why
+
+| Library | Role | Why we chose it |
+|---------|------|----------------|
+| `playwright` | Controls real Chromium browser | Only way to execute JS and bypass bot checks |
+| `playwright-stealth` | Patches 15 browser fingerprint properties | Makes Chromium look identical to a real human's Chrome |
+| `beautifulsoup4` | HTML parsing and cleaning | Strips scripts/styles, extracts readable text efficiently |
+| `FastAPI` | Wraps scraper in a REST API | Async — handles multiple scrape jobs concurrently |
+| `motor` | Saves results to MongoDB | Async driver — doesn't block FastAPI while writing to DB |
+| `python-dotenv` | Loads secrets from `.env` | Keeps API keys out of source code |
+
+### Why It Works on Most Sites
+Bot detection (including basic Cloudflare) works by running JavaScript that checks browser properties. Since `playwright-stealth` patches those properties **before the page loads**, every check passes. The only sites that can still detect us are those using mouse-movement tracking or image CAPTCHAs — rare for publicly listed pricing pages.
+
+---
+
+## 🤖 How n8n Orchestrates the AI Pipeline
+
+n8n is a **visual drag-and-drop workflow engine** — think of it as the brain that coordinates everything on a schedule, without you writing any glue code.
+
+### The Full Automated Workflow
+
+```
+Every night at midnight
+       │
+       ▼
+┌──────────────────────────────┐
+│  Node 1: Schedule Trigger    │
+│  Fires the workflow on cron  │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│  Node 2: HTTP Request        │
+│  GET /track                  │
+│  Fetches all competitor URLs │
+│  you added in the dashboard  │
+└──────────────┬───────────────┘
+               │  returns array of items
+               ▼
+┌──────────────────────────────┐
+│  Node 3: HTTP Request        │
+│  POST /scrape                │
+│  Passes each URL to our      │
+│  stealth Playwright scraper  │
+│  Returns 5,000 chars of text │
+└──────────────┬───────────────┘
+               │  clean text
+               ▼
+┌──────────────────────────────┐
+│  Node 4: Groq Chat Model     │
+│  Sends text to Llama 3.1     │
+│  System prompt instructs it  │
+│  to extract price, sentiment │
+│  and summary as JSON         │
+└──────────────┬───────────────┘
+               │  {"price": 51.77, "sentiment": "positive", ...}
+               ▼
+┌──────────────────────────────┐
+│  Node 5: HTTP Request        │
+│  POST /history               │
+│  Saves the extracted data    │
+│  to MongoDB via FastAPI      │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│  Node 6: (Optional) Email    │
+│  Sends alert if price        │
+│  dropped more than 5%        │
+└──────────────────────────────┘
+```
+
+### Why n8n Instead of Writing Custom Code?
+
+- **Visual** — you can see the entire pipeline at a glance and debug individual nodes
+- **No infrastructure** — runs locally with a single `npx n8n` command, free forever
+- **Built-in retry logic** — if a scrape fails, n8n retries automatically
+- **Easy to extend** — add a Slack notification, Google Sheets export, or Telegram alert with one drag-and-drop node
+
+---
+
+## 🧠 How the Groq AI Extraction Works
+
+Groq runs Meta's **Llama 3.1 8B** model at extremely high speed (up to 800 tokens/second) — roughly 10x faster than OpenAI's API, with a generous free tier.
+
+### What We Ask It
+
+We send the clean scraped text with a strict system prompt:
+
+```
+You are a product data extractor. Analyze the provided text from a product page.
+Extract the price (as a float), overall sentiment (positive/neutral/negative),
+and a 1-sentence summary.
+Reply ONLY with a valid JSON object:
+{"price": 51.77, "sentiment": "positive", "summary": "..."}
+```
+
+We use Groq's `response_format: { type: "json_object" }` parameter to **force** the output to always be valid JSON — no extra text, no markdown, just clean structured data we can immediately save to MongoDB.
+
+### Example Real Output
+
+Input (scraped text from books.toscrape.com):
+```
+A Light in the Attic | Books to Scrape — £51.77 — In stock — A classic
+collection of poetry and drawings from Shel Silverstein...
+```
+
+Groq output:
+```json
+{
+  "price": 51.77,
+  "sentiment": "positive",
+  "summary": "A classic collection of poetry by Shel Silverstein celebrating its 20th anniversary."
+}
+```
+
+This gets saved to MongoDB and immediately appears in your Insights dashboard.
 
 ---
 
