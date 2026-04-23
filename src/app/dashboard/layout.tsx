@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, Search, HelpCircle, User, Bell, Box, Sun, Moon, X } from 'lucide-react';
+import { LayoutDashboard, Package, Search, HelpCircle, User, Bell, Box, Sun, Moon, X, MessageSquare } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
 const BackgroundParticles = dynamic(() => import('@/components/BackgroundParticles'), { ssr: false });
@@ -18,6 +18,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   
   const navItems = [
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Co-pilot', href: '/dashboard/copilot', icon: MessageSquare },
     { name: 'Catalogue', href: '/dashboard/catalogue', icon: Package },
     { name: 'Tracked Bus.', href: '/dashboard/tracked', icon: Box },
     { name: 'Insights', href: '/dashboard/insights', icon: Search },

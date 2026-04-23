@@ -1,0 +1,210 @@
+{
+  "name": "Antigravity Research Scraper",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1",
+      "name": "Cron Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/track_antigravity",
+        "method": "GET",
+        "options": {}
+      },
+      "id": "2",
+      "name": "Get Seed URLs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [200, 0]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "3",
+      "name": "Loop Through URLs",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [400, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/scrape_antigravity",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4",
+      "name": "Scrape Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [600, 0]
+    },
+    {
+      "parameters": {
+        "model": "llama3-8b-8192",
+        "prompt": "You are an expert physicist analyzing scraped text. Extract the following from this text: \n1. key findings\n2. propulsion method (e.g., Casimir cavities, superfluids)\n3. TRL (Technology Readiness Level 1-9)\n4. sentiment (positive, negative, neutral)\n5. 1-sentence summary\n\nReturn strictly valid JSON with keys: key_findings, propulsion_method, trl, sentiment, summary.\nText: {{$json.text}}",
+        "options": {
+          "responseFormat": "json"
+        }
+      },
+      "id": "5",
+      "name": "Groq Llama 3.1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [800, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/save_research",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "url", "value": "={{ $('Loop Through URLs').item.json.url }}" },
+            { "name": "key_findings", "value": "={{ $json.message.content.key_findings }}" },
+            { "name": "propulsion_method", "value": "={{ $json.message.content.propulsion_method }}" },
+            { "name": "trl", "value": "={{ $json.message.content.trl }}" },
+            { "name": "sentiment", "value": "={{ $json.message.content.sentiment }}" },
+            { "name": "summary", "value": "={{ $json.message.content.summary }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6",
+      "name": "Save to DB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1000, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "any": [
+            { "value1": "={{ $json.message.content.trl }}", "operation": "larger", "value2": 4 },
+            { "value1": "={{ $json.message.content.summary }}", "operation": "contains", "value2": "breakthrough" }
+          ]
+        }
+      },
+      "id": "7",
+      "name": "Check Breakthrough",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1200, 0]
+    },
+    {
+      "parameters": {
+        "webhookUrl": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+        "text": "🚀 *Antigravity Breakthrough Alert!*\n*URL:* {{ $('Loop Through URLs').item.json.url }}\n*Method:* {{ $('Save to DB').item.json.propulsion_method }} (TRL: {{ $('Save to DB').item.json.trl }})\n*Summary:* {{ $('Save to DB').item.json.summary }}"
+      },
+      "id": "8",
+      "name": "Slack Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1400, -100]
+    }
+  ],
+  "connections": {
+    "Cron Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Seed URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Seed URLs": {
+      "main": [
+        [
+          {
+            "node": "Loop Through URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Through URLs": {
+      "main": [
+        [
+          {
+            "node": "Scrape Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Website": {
+      "main": [
+        [
+          {
+            "node": "Groq Llama 3.1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Llama 3.1": {
+      "main": [
+        [
+          {
+            "node": "Save to DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to DB": {
+      "main": [
+        [
+          {
+            "node": "Check Breakthrough",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Breakthrough": {
+      "main": [
+        [
+          {
+            "node": "Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true
+}

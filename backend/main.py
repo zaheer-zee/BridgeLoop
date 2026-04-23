@@ -153,3 +153,116 @@ async def scrape_url(request: ScrapeRequest):
             }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- ANTIGRAVITY RESEARCH CO-PILOT ENDPOINTS ---
+
+class AntigravitySaveRequest(BaseModel):
+    url: str
+    key_findings: str
+    propulsion_method: str
+    trl: int
+    sentiment: str
+    summary: str
+
+@app.get("/track_antigravity")
+async def get_track_antigravity():
+    return [
+        {"url": "https://arxiv.org/search/?query=%22Woodward+effect%22&searchtype=all", "keyword": "Woodward effect"},
+        {"url": "https://arxiv.org/search/?query=%22Alcubierre+drive%22&searchtype=all", "keyword": "Alcubierre drive"},
+        {"url": "https://arxiv.org/search/?query=%22Casimir+cavity%22&searchtype=all", "keyword": "Casimir cavity"},
+        {"url": "https://arxiv.org/search/?query=%22quantum+vacuum+plasma+thruster%22&searchtype=all", "keyword": "QVPT"},
+        {"url": "https://arxiv.org/search/?query=%22EmDrive%22&searchtype=all", "keyword": "EmDrive"},
+        {"url": "https://arxiv.org/search/?query=%22superfluid+vacuum+theory%22&searchtype=all", "keyword": "Superfluid vacuum"},
+        {"url": "https://arxiv.org/search/?query=%22Lenz%27s+law+levitation%22&searchtype=all", "keyword": "Lenz's law"},
+        {"url": "https://arxiv.org/search/?query=%22Mach-effect+thruster%22&searchtype=all", "keyword": "Mach-effect"},
+        {"url": "https://arxiv.org/search/?query=%22Podkletnov+effect%22&searchtype=all", "keyword": "Podkletnov"},
+        {"url": "https://arxiv.org/search/?query=%22Acoustic+levitation%22&searchtype=all", "keyword": "Acoustic levitation"},
+    ]
+
+@app.post("/scrape_antigravity")
+async def scrape_antigravity_url(request: ScrapeRequest):
+    try:
+        async with Stealth().use_async(async_playwright()) as p:
+            browser = await p.chromium.launch(headless=True)
+            context = await browser.new_context()
+            page = await context.new_page()
+            
+            await page.goto(request.url, wait_until="domcontentloaded", timeout=30000)
+            html_content = await page.content()
+            await browser.close()
+            
+            soup = BeautifulSoup(html_content, "html.parser")
+            for script_or_style in soup(["script", "style", "noscript", "svg"]):
+                script_or_style.decompose()
+                
+            clean_text = soup.get_text(separator=' ', strip=True)
+            truncated_text = clean_text[:5000]
+            
+            return {
+                "status": "success", 
+                "url": request.url, 
+                "text": truncated_text
+            }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/save_research")
+async def save_research(request: AntigravitySaveRequest):
+    log = {
+        "id": str(uuid.uuid4()),
+        "url": request.url,
+        "key_findings": request.key_findings,
+        "propulsion_method": request.propulsion_method,
+        "trl": request.trl,
+        "sentiment": request.sentiment,
+        "summary": request.summary,
+        "timestamp": datetime.utcnow()
+    }
+    await db.antigravity_research.insert_one(log)
+    return {"status": "success", "message": "Research saved."}
+
+@app.get("/research")
+async def get_research(keyword: str = None, min_trl: int = None):
+    query = {}
+    if keyword:
+        query["$or"] = [
+            {"summary": {"$regex": keyword, "$options": "i"}},
+            {"key_findings": {"$regex": keyword, "$options": "i"}},
+            {"propulsion_method": {"$regex": keyword, "$options": "i"}}
+        ]
+    if min_trl is not None:
+        query["trl"] = {"$gte": min_trl}
+        
+    items = await db.antigravity_research.find(query, {"_id": 0}).sort("timestamp", -1).to_list(100)
+    return items
+
+class ChatRequest(BaseModel):
+    query: str
+
+@app.post("/chat_query")
+async def chat_query(request: ChatRequest):
+    items = await db.antigravity_research.find({}, {"_id": 0}).to_list(500)
+    
+    query_lower = request.query.lower()
+    
+    filtered_items = items
+    if "woodward" in query_lower:
+        filtered_items = [i for i in items if "woodward" in (i.get("propulsion_method", "") + i.get("summary", "")).lower()]
+    elif "eagleworks" in query_lower or "nasa" in query_lower:
+        filtered_items = [i for i in items if "eagleworks" in i.get("summary", "").lower() or ("nasa" in i.get("summary", "").lower())]
+    elif "breakthrough" in query_lower:
+        filtered_items = [i for i in items if "breakthrough" in i.get("summary", "").lower() or "breakthrough" in i.get("key_findings", "").lower()]
+        
+    chart_data = [{"name": i.get("propulsion_method", "Unknown")[0:15], "trl": i.get("trl", 0), "date": i.get("timestamp").isoformat()} for i in filtered_items if "timestamp" in i]
+    
+    if len(filtered_items) > 0:
+        answer = f"I found {len(filtered_items)} relevant research items matching your query. Here is a brief overview: {filtered_items[0].get('summary', '')}"
+    else:
+        answer = "I couldn't find any specific research papers matching your query right now. Would you like me to trigger a fresh web scrape for you?"
+
+    return {
+        "status": "success",
+        "answer": answer,
+        "chart_data": chart_data,
+        "papers": filtered_items
+    }
