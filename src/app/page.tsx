@@ -46,7 +46,7 @@ export default function Home() {
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="group relative px-8 py-5 bg-black dark:bg-white text-white dark:text-black rounded-full font-bold text-xl md:text-2xl flex items-center space-x-3 overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.5)] dark:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-all"
+                className="group relative px-8 py-5 bg-black dark:bg-white text-white dark:text-black rounded-full font-bold text-xl md:text-2xl flex items-center space-x-3 overflow-hidden shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all dark:shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all transition-all"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
                 <span>Enter Workspace</span>
@@ -62,7 +62,7 @@ export default function Home() {
          <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 dark:text-gray-400">
             <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
               <span className="font-bold text-black dark:text-white text-lg font-inter flex items-center space-x-2">
-                <span className="w-4 h-4 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.8)]"></span>
+                <span className="w-4 h-4 rounded-full bg-cyan-500 shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all"></span>
                 <span>Bridgeloop</span>
               </span>
               <span>© {new Date().getFullYear()} Bridgeloop. All rights reserved.</span>

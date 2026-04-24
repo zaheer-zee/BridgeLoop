@@ -53,7 +53,7 @@ export default function ProductCatalogue() {
           <button className="px-4 py-2 border border-gray-200 dark:border-white/10 rounded-lg flex items-center space-x-2 hover:bg-black/5 dark:hover:bg-white/5 transition">
             <Download className="w-4 h-4" /> <span>Export CSV</span>
           </button>
-          <button className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold flex items-center space-x-2 shadow-[0_0_10px_rgba(34,211,238,0.3)] transition">
+          <button className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold flex items-center space-x-2 shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all transition">
             <Scan className="w-4 h-4" /> <span>AI Photo Upload</span>
           </button>
         </div>

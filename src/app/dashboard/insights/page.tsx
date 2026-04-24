@@ -273,7 +273,7 @@ export default function InsightsPage() {
               <li className="flex items-start space-x-2"><span className="text-[#2563EB] font-bold">•</span><span>Run the n8n workflow to collect today&apos;s pricing data and AI summaries.</span></li>
             </ul>
           </div>
-          <button className="px-5 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-lg font-medium text-sm flex items-center space-x-2 shadow-[0_0_10px_rgba(37,99,235,0.3)] transition">
+          <button className="px-5 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-lg font-medium text-sm flex items-center space-x-2 shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all transition">
             <Download className="w-4 h-4" /><span>Download Full Report (PDF)</span>
           </button>
         </GlassCard>

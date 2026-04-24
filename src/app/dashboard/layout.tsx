@@ -7,6 +7,7 @@ import { LayoutDashboard, Package, Search, HelpCircle, User, Bell, Box, Sun, Moo
 import { useTheme } from 'next-themes';
 
 const BackgroundParticles = dynamic(() => import('@/components/BackgroundParticles'), { ssr: false });
+import ChatWidget from '@/components/ChatWidget';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -18,7 +19,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   
   const navItems = [
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Co-pilot', href: '/dashboard/copilot', icon: MessageSquare },
     { name: 'Catalogue', href: '/dashboard/catalogue', icon: Package },
     { name: 'Tracked Bus.', href: '/dashboard/tracked', icon: Box },
     { name: 'Insights', href: '/dashboard/insights', icon: Search },
@@ -42,7 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Sidebar Navigation */}
       <aside className="w-full md:w-64 bg-white/80 dark:bg-[#111111]/80 backdrop-blur-md border-r border-gray-200 dark:border-white/5 flex flex-col flex-shrink-0 transition-colors duration-500 overflow-y-auto relative z-10">
         <div className="p-6 flex items-center space-x-3">
-          <div className="w-4 h-4 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
+          <div className="w-4 h-4 rounded-full bg-cyan-500 shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all"></div>
           <span className="font-bold text-xl tracking-tight">Bridgeloop</span>
         </div>
         
@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-medium' 
                     : 'text-gray-500 hover:bg-black/5 dark:hover:bg-white/5'
                 }`}>
-                  <item.icon className="w-5 h-5" />
+                  <item.icon className="w-5 h-5" suppressHydrationWarning={true} />
                   <span>{item.name}</span>
                 </div>
               </Link>
@@ -67,7 +67,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-4 border-t border-gray-200 dark:border-white/5 space-y-2 pb-6">
            <Link href="/dashboard/profile">
             <div className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${pathname === '/dashboard/profile' ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400' : 'text-gray-500 hover:bg-black/5 dark:hover:bg-white/5'}`}>
-               <User className="w-5 h-5" />
+               <User className="w-5 h-5" suppressHydrationWarning={true} />
                <span>Profile Details</span>
             </div>
            </Link>
@@ -77,7 +77,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
              className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 transition-all w-full"
            >
-             {mounted && (theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />)}
+             {mounted && (theme === 'dark' ? <Sun className="w-5 h-5" suppressHydrationWarning={true} /> : <Moon className="w-5 h-5" suppressHydrationWarning={true} />)}
              <span>{mounted ? (theme === 'dark' ? 'Light Mode' : 'Dark Mode') : 'Theme'}</span>
            </button>
         </div>
@@ -86,13 +86,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative z-10">
         {/* Top Header */}
-        <header className="h-16 border-b border-gray-200 dark:border-white/5 bg-white/50 dark:bg-[#111111]/50 backdrop-blur-md flex items-center justify-between px-8 flex-shrink-0">
+        <header className="relative z-50 h-16 border-b border-gray-200 dark:border-white/5 bg-white/50 dark:bg-[#111111]/50 backdrop-blur-md flex items-center justify-between px-8 flex-shrink-0">
           <h2 className="font-semibold text-lg">Workspace</h2>
           <div className="flex items-center space-x-4">
              {/* Alert Bell with Dropdown */}
              <div className="relative">
                 <button onClick={() => setAlertOpen(!alertOpen)} className="relative cursor-pointer p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition">
-                  <Bell className="w-5 h-5 text-gray-500 hover:text-cyan-500 transition" />
+                  <Bell className="w-5 h-5 text-gray-500 hover:text-cyan-500 transition" suppressHydrationWarning={true} />
                   <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
                 </button>
                 
@@ -100,7 +100,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <div className="absolute right-0 top-12 w-80 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
                     <div className="p-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
                       <h3 className="font-bold text-sm">Notifications</h3>
-                      <button onClick={() => setAlertOpen(false)}><X className="w-4 h-4 text-gray-400" /></button>
+                      <button onClick={() => setAlertOpen(false)}><X className="w-4 h-4 text-gray-400" suppressHydrationWarning={true} /></button>
                     </div>
                     <div className="max-h-64 overflow-y-auto">
                       {alertHeadlines.map((a) => (
@@ -122,8 +122,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   </div>
                 )}
              </div>
-
-             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-500"></div>
           </div>
         </header>
 
@@ -132,6 +130,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {children}
         </div>
       </main>
+      <ChatWidget />
     </div>
   );
 }

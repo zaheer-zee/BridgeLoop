@@ -69,7 +69,7 @@ export default function TrackedPage() {
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           onClick={() => setShowModal(true)}
-          className="flex items-center space-x-2 px-5 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl shadow-[0_0_15px_rgba(34,211,238,0.4)] transition"
+          className="flex items-center space-x-2 px-5 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all transition"
         >
           <Plus className="w-5 h-5" />
           <span>Add Competitor</span>
@@ -197,7 +197,7 @@ export default function TrackedPage() {
                   disabled={submitting}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl flex items-center justify-center space-x-2 transition shadow-[0_0_15px_rgba(34,211,238,0.3)] disabled:opacity-60"
+                  className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl flex items-center justify-center space-x-2 transition shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all disabled:opacity-60"
                 >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                   <span>{submitting ? "Adding..." : "Start Tracking"}</span>

@@ -130,19 +130,19 @@ export default function ProductStory() {
           >
             <motion.div
               style={{ opacity: opTrack, y: yTrack, scale: scaleTrack }}
-              className="text-5xl md:text-7xl font-black font-inter text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]"
+              className="text-5xl md:text-7xl font-black font-inter text-cyan-400 drop-shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all"
             >
               Track.
             </motion.div>
             <motion.div
               style={{ opacity: opCompare, y: yCompare, scale: scaleCompare }}
-              className="text-5xl md:text-7xl font-black font-inter text-green-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]"
+              className="text-5xl md:text-7xl font-black font-inter text-green-400 drop-shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all"
             >
               Compare.
             </motion.div>
             <motion.div
               style={{ opacity: opGrow, y: yGrow, scale: scaleGrow }}
-              className="text-5xl md:text-7xl font-black font-inter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"
+              className="text-5xl md:text-7xl font-black font-inter text-white drop-shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all"
             >
               Grow.
             </motion.div>

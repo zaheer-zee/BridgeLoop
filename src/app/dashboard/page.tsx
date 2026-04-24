@@ -44,13 +44,13 @@ export default function DashboardOverview() {
         {/* Tracked Products Highlight */}
         <div className="lg:col-span-2 space-y-4">
            <h3 className="text-xl font-bold flex items-center space-x-2">
-             <Flag className="text-cyan-500" />
+             <Flag className="text-cyan-500" suppressHydrationWarning={true} />
              <span>Flagged Trackers</span>
            </h3>
            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {trackedProducts.map(prod => (
                 <motion.div key={prod.id} whileHover={{ scale: 1.02 }} className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 p-6 rounded-2xl shadow-sm relative overflow-hidden group">
-                   <div className="absolute top-4 right-4 text-cyan-500"><Flag className="w-5 h-5 fill-cyan-500/20" /></div>
+                   <div className="absolute top-4 right-4 text-cyan-500"><Flag className="w-5 h-5 fill-cyan-500/20" suppressHydrationWarning={true} /></div>
                    <h4 className="font-bold text-lg pr-8">{prod.name}</h4>
                    <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                       <div className="bg-gray-50 dark:bg-black/30 p-3 rounded-lg border border-gray-100 dark:border-white/5">
@@ -61,7 +61,7 @@ export default function DashboardOverview() {
                       <div className="bg-gray-50 dark:bg-black/30 p-3 rounded-lg border border-gray-100 dark:border-white/5">
                         <span className="block text-gray-500 text-xs mb-1">Pricing Variance</span>
                         <span className={`font-bold text-lg flex items-center ${prod.variance.includes('-') ? 'text-green-500' : 'text-red-500'}`}>
-                           <TrendingDown className="w-4 h-4 mr-1" /> {prod.variance}
+                           <TrendingDown className="w-4 h-4 mr-1" suppressHydrationWarning={true} /> {prod.variance}
                         </span>
                         <span className="text-xs text-gray-400">Industry Avg</span>
                       </div>
@@ -69,7 +69,7 @@ export default function DashboardOverview() {
                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/10 flex items-center justify-between">
                      <span className="text-sm text-gray-500">Sentiment Index</span>
                      <div className="flex items-center space-x-2">
-                        <Smile className={`w-4 h-4 ${prod.sentiment > 70 ? 'text-green-500' : 'text-yellow-500'}`} />
+                        <Smile className={`w-4 h-4 ${prod.sentiment > 70 ? 'text-green-500' : 'text-yellow-500'}`} suppressHydrationWarning={true} />
                         <span className="font-bold text-sm">{prod.sentiment}/100 ({prod.sentText})</span>
                      </div>
                    </div>
@@ -81,7 +81,7 @@ export default function DashboardOverview() {
         {/* Intelligence Feed */}
         <div className="space-y-4">
            <h3 className="text-xl font-bold flex items-center space-x-2">
-             <AlertTriangle className="text-orange-500" />
+             <AlertTriangle className="text-orange-500" suppressHydrationWarning={true} />
              <span>Intelligence Feed</span>
            </h3>
            <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm flex flex-col h-full space-y-6">
@@ -91,7 +91,7 @@ export default function DashboardOverview() {
                 { title: "Market Stabilization", desc: "Local competitor pricing for Coffee blends holds steady at $23.50.", time: "1 day ago", tag: "Note" },
               ].map((feed, i) => (
                 <div key={i} className="flex space-x-4">
-                   <div className="w-2 h-2 mt-2 bg-cyan-500 rounded-full flex-shrink-0 shadow-[0_0_5px_rgba(34,211,238,0.8)]"></div>
+                   <div className="w-2 h-2 mt-2 bg-cyan-500 rounded-full flex-shrink-0 shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all"></div>
                    <div>
                      <div className="flex items-center space-x-2 mb-1">
                        <span className="font-bold text-sm">{feed.title}</span>
@@ -103,7 +103,7 @@ export default function DashboardOverview() {
                 </div>
               ))}
               <button className="w-full mt-auto py-2 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/5 transition flex items-center justify-center space-x-2">
-                <span>View Full Feed</span> <ArrowRight className="w-4 h-4" />
+                <span>View Full Feed</span> <ArrowRight className="w-4 h-4" suppressHydrationWarning={true} />
               </button>
            </div>
         </div>

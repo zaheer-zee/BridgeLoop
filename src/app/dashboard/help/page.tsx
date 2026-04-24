@@ -15,18 +15,18 @@ export default function HelpPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#000000] text-gray-100 font-sans p-4 md:p-8">
+    <div className="min-h-screen text-gray-900 dark:text-gray-100 font-sans p-4 md:p-8">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto space-y-12 pb-12">
         
         {/* Header & Search */}
         <div className="text-center pt-8">
-          <h1 className="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight">How can we help?</h1>
+          <h1 className="text-3xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white tracking-tight">How can we help?</h1>
           <div className="max-w-2xl mx-auto relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input 
               type="text" 
               placeholder="Search help articles..." 
-              className="w-full bg-white/10 border border-white/20 rounded-full py-4 pl-12 pr-6 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] text-white backdrop-blur-md transition shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+              className="w-full bg-white dark:bg-white/10 border border-gray-200 dark:border-white/20 rounded-full py-4 pl-12 pr-6 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] text-gray-900 dark:text-white backdrop-blur-md transition shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all"
             />
           </div>
         </div>
@@ -38,9 +38,9 @@ export default function HelpPage() {
              { title: "Understand My Dashboard", icon: LayoutDashboard },
              { title: "Change Alert Settings", icon: BellRing }
            ].map((action, i) => (
-             <motion.div key={i} whileHover={{ scale: 1.02 }} className="bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-md cursor-pointer hover:bg-white/10 hover:border-[#2563EB]/50 transition group">
+             <motion.div key={i} whileHover={{ scale: 1.02 }} className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 p-6 rounded-2xl backdrop-blur-md cursor-pointer hover:bg-gray-50 dark:hover:bg-white/10 hover:border-[#2563EB]/50 transition group shadow-sm">
                 <action.icon className="w-8 h-8 text-[#2563EB] mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="font-semibold text-lg">{action.title}</h3>
+                <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{action.title}</h3>
              </motion.div>
            ))}
         </div>
@@ -50,12 +50,12 @@ export default function HelpPage() {
            <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
            <div className="space-y-4">
              {faqs.map((faq, i) => (
-               <div key={i} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden backdrop-blur-sm">
+               <div key={i} className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden backdrop-blur-sm shadow-sm">
                  <button 
                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                   className="w-full text-left px-6 py-4 flex justify-between items-center hover:bg-white/5 transition"
+                   className="w-full text-left px-6 py-4 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-white/5 transition"
                  >
-                   <span className="font-semibold">{faq.q}</span>
+                   <span className="font-semibold text-gray-900 dark:text-white">{faq.q}</span>
                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
                  </button>
                  <AnimatePresence>
@@ -64,7 +64,7 @@ export default function HelpPage() {
                        initial={{ height: 0, opacity: 0 }}
                        animate={{ height: "auto", opacity: 1 }}
                        exit={{ height: 0, opacity: 0 }}
-                       className="px-6 pb-4 text-sm text-gray-400"
+                       className="px-6 pb-4 text-sm text-gray-600 dark:text-gray-400"
                      >
                        {faq.a}
                      </motion.div>
@@ -78,14 +78,14 @@ export default function HelpPage() {
         {/* Contact Support */}
         <div className="pt-8">
            <div className="bg-[#2563EB]/10 border border-[#2563EB]/30 rounded-2xl p-8 backdrop-blur-md text-center max-w-xl mx-auto">
-             <h2 className="text-xl font-bold mb-2">Still need help?</h2>
+             <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">Still need help?</h2>
              <p className="text-[#2563EB] font-bold text-lg mb-1">support@bridgeloop.ai</p>
-             <p className="text-sm text-gray-400">We reply within 24 business hours.</p>
+             <p className="text-sm text-gray-600 dark:text-gray-400">We reply within 24 business hours.</p>
            </div>
         </div>
 
         {/* Data Transparency Footer */}
-        <div className="pt-12 text-center text-xs text-gray-600 italic">
+        <div className="pt-12 text-center text-xs text-gray-500 dark:text-gray-600 italic">
           <p>Bridgeloop uses publicly available data. Insights are assistive—always apply your own judgment.</p>
         </div>
 

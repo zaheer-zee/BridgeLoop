@@ -68,7 +68,7 @@ const TiltCard = ({ feature }: { feature: any }) => {
       className="relative z-10 w-full"
     >
       <div 
-        className="h-full p-8 rounded-2xl bg-white/10 dark:bg-black/40 border border-cyan-500/30 backdrop-blur-xl hover:border-cyan-400 hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] transition-colors duration-300 cursor-pointer overflow-hidden group"
+        className="h-full p-8 rounded-2xl bg-white/10 dark:bg-black/40 border border-cyan-500/30 backdrop-blur-xl hover:border-cyan-400 hover:shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all transition-colors duration-300 cursor-pointer overflow-hidden group"
       >
         <div 
           className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" 
@@ -76,7 +76,7 @@ const TiltCard = ({ feature }: { feature: any }) => {
         />
         
         <div style={{ transform: "translateZ(30px)" }}>
-          <div className="w-14 h-14 rounded-full bg-cyan-500/10 flex items-center justify-center mb-6 text-cyan-400 group-hover:text-cyan-300 group-hover:scale-110 transition-all duration-300 shadow-[0_0_10px_rgba(34,211,238,0.2)]">
+          <div className="w-14 h-14 rounded-full bg-cyan-500/10 flex items-center justify-center mb-6 text-cyan-400 group-hover:text-cyan-300 group-hover:scale-110 transition-all duration-300 shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all">
             {feature.icon}
           </div>
           <h3 className="text-xl font-bold mb-3 text-black dark:text-white group-hover:text-cyan-400 transition-colors">{feature.title}</h3>
@@ -144,7 +144,7 @@ export default function FeatureReveal() {
         <div className="text-center mb-16 space-y-4">
           <motion.h2 
             variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-            className="text-4xl md:text-5xl font-black text-black dark:text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] dark:drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]"
+            className="text-4xl md:text-5xl font-black text-black dark:text-white drop-shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all dark:drop-shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all"
           >
             Core Capabilities
           </motion.h2>
