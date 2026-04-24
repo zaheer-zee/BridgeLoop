@@ -1,0 +1,49 @@
+{
+  "name": "Bridgeloop Daily AI Scraper",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1",
+      "name": "Cron Trigger (Daily)",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://bridgeloop.onrender.com/run-pipeline",
+        "method": "POST",
+        "options": {}
+      },
+      "id": "2",
+      "name": "Trigger Bridgeloop AI Pipeline",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [250, 0]
+    }
+  ],
+  "connections": {
+    "Cron Trigger (Daily)": {
+      "main": [
+        [
+          {
+            "node": "Trigger Bridgeloop AI Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true
+}
