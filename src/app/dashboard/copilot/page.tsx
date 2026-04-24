@@ -12,7 +12,7 @@ const NGROK_HEADERS = {
 
 export default function CopilotPage() {
   const [messages, setMessages] = useState([
-    { role: "bot", content: "Hello! I am the Antigravity Research Co-pilot. Ask me anything about TRL progressions, latest papers on the Woodward effect, Casimir cavities, or specific breakthroughs.", chartData: null }
+    { role: "bot", content: "Hi! I'm BridgeBot 🤖 — your competitive intelligence assistant.\n\nI have access to your live scraped product data. Ask me things like:\n• 'What is the current price of Books Test Item?'\n• 'Which product has the best sentiment?'\n• 'Compare the apple store and books prices'\n• Or anything else about your tracked competitors!", chartData: null }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ export default function CopilotPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/chat_query`, {
+      const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: NGROK_HEADERS,
         body: JSON.stringify({ query: userMsg }),
@@ -62,9 +62,9 @@ export default function CopilotPage() {
              <Rocket className="w-6 h-6 text-cyan-500" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Research Co-pilot</h1>
+            <h1 className="text-2xl font-bold">BridgeBot</h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              Antigravity & Quantum Propulsion Specialist
+              Competitive Intelligence Assistant
             </p>
           </div>
         </div>
@@ -130,7 +130,7 @@ export default function CopilotPage() {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask about antigravity research, TRL levels, Woodward effect..."
+          placeholder="Ask about prices, sentiment, competitor comparisons..."
           className="flex-1 bg-transparent px-4 py-3 outline-none text-sm"
         />
         <button

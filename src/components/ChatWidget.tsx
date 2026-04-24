@@ -13,7 +13,7 @@ const NGROK_HEADERS = {
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "bot", content: "Hello! I am the Antigravity Research Co-pilot. Ask me anything about TRL progressions or latest breakthroughs.", chartData: null }
+    { role: "bot", content: "Hi! I'm BridgeBot 🤖 — your competitive intelligence assistant. Ask me anything about your tracked products and prices!", chartData: null }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,7 +35,7 @@ export default function ChatWidget() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/chat_query`, {
+      const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: NGROK_HEADERS,
         body: JSON.stringify({ query: userMsg }),
@@ -70,7 +70,7 @@ export default function ChatWidget() {
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-black/20">
               <div className="flex items-center space-x-2">
                 <Bot className="w-5 h-5 text-cyan-500" suppressHydrationWarning={true} />
-                <span className="font-bold text-sm">Research Co-pilot</span>
+                <span className="font-bold text-sm">BridgeBot</span>
               </div>
               <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                 <X className="w-4 h-4" suppressHydrationWarning={true} />
@@ -123,7 +123,7 @@ export default function ChatWidget() {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask a question..."
+                placeholder="Ask about prices, sentiment..."
                 className="flex-1 bg-white dark:bg-[#1A1A1A] px-3 py-2 rounded-lg text-sm outline-none border border-gray-200 dark:border-white/10"
               />
               <button

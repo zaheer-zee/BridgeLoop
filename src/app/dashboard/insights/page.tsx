@@ -13,19 +13,6 @@ import {
 } from "recharts";
 import { getTrackedItems, getPriceHistory, TrackedItem, PriceHistory } from "@/lib/api";
 
-/* ─── Static UI mock data (activity feed & alerts) ─── */
-const sentimentSparkline = [65, 68, 72, 70];
-const competitorFeed = [
-  { id: 1, name: "Urban Tech Solutions", avatar: "UT", time: "2 hours ago", summary: "Dropped ANC Headphones price from $155 to $145.", sentiment: "Negative", oldPrice: "$155.00", newPrice: "$145.00", change: "-6.5%" },
-  { id: 2, name: "Green Leaf Organics", avatar: "GL", time: "5 hours ago", summary: "Launched new Organic Tea Collection. Reviews trending positive.", sentiment: "Positive", oldPrice: null, newPrice: null, change: null },
-  { id: 3, name: "Apex Fitness Gear", avatar: "AF", time: "Yesterday", summary: "Running a 15% off sale on Yoga Mats.", sentiment: "Negative", oldPrice: "$52.00", newPrice: "$44.20", change: "-15.0%" },
-];
-const mockAlerts = [
-  { id: 1, type: "urgent", icon: AlertCircle, text: "Product 'ANC Headphones' price dropped by 6.5% (Urban Tech Solutions)", time: "2 hours ago" },
-  { id: 2, type: "warning", icon: AlertTriangle, text: "Negative sentiment increased by 22% for Apex Fitness Gear this week", time: "5 hours ago" },
-  { id: 3, type: "info", icon: Info, text: "Green Leaf Organics launched a new product line — Organic Tea Collection", time: "Yesterday" },
-];
-
 /* ─── Helpers ─── */
 const GlassCard = ({ children, className = "", onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) => (
   <div className={`bg-white/60 dark:bg-white/[0.04] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-sm ${className}`} onClick={onClick}>
@@ -41,10 +28,7 @@ const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, tra
 /* ─── Page ─── */
 export default function InsightsPage() {
   const [searchFilter, setSearchFilter] = useState("");
-  const [dismissedAlerts, setDismissedAlerts] = useState<number[]>([]);
-  const [showAllFeed, setShowAllFeed] = useState(false);
-  const [alertsExpanded, setAlertsExpanded] = useState(true);
-
+  
   // Live data from backend
   const [trackedItems, setTrackedItems] = useState<TrackedItem[]>([]);
   const [priceHistory, setPriceHistory] = useState<PriceHistory[]>([]);
@@ -76,9 +60,21 @@ export default function InsightsPage() {
   });
   const filteredTable = trackedTableData.filter((p) => p.name.toLowerCase().includes(searchFilter.toLowerCase()));
 
-  const dismiss = (id: number) => setDismissedAlerts((prev) => [...prev, id]);
-  const activeAlerts = mockAlerts.filter((a) => !dismissedAlerts.includes(a.id));
-  const visibleFeed = showAllFeed ? competitorFeed : competitorFeed.slice(0, 3);
+  // Build dynamic feed
+  const visibleFeed = priceHistory.slice(-5).reverse().map((h, i) => {
+    const item = trackedItems.find(t => t.id === h.tracked_item_id);
+    return {
+      id: i,
+      name: item?.name || "Product",
+      avatar: (item?.name || "P").charAt(0),
+      time: new Date(h.timestamp).toLocaleString(),
+      summary: h.summary,
+      sentiment: h.sentiment === "positive" ? "Positive" : h.sentiment === "negative" ? "Negative" : "Neutral",
+      oldPrice: null,
+      newPrice: h.price ? `$${h.price.toFixed(2)}` : "$0.00",
+      change: null
+    };
+  });
 
   return (
     <motion.div initial="hidden" animate="visible" variants={stagger} className="max-w-7xl mx-auto space-y-10 pb-16">
@@ -105,13 +101,13 @@ export default function InsightsPage() {
           <p className="text-3xl font-bold text-[#10B981]">{loadingLive ? "—" : priceHistory.length}</p>
           <p className="text-xs text-gray-500 mt-1">Total data points collected</p>
         </GlassCard>
-        <GlassCard className="p-5 cursor-pointer" onClick={() => document.getElementById("alerts-section")?.scrollIntoView({ behavior: "smooth" })}>
+        <GlassCard className="p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Active Alerts</span>
             <Bell className="w-5 h-5 text-[#F97316]" />
           </div>
-          <p className="text-3xl font-bold">{activeAlerts.length}</p>
-          <p className="text-xs text-gray-500 mt-1">Click to review</p>
+          <p className="text-3xl font-bold">0</p>
+          <p className="text-xs text-gray-500 mt-1">All caught up!</p>
         </GlassCard>
         <GlassCard className="p-5">
           <div className="flex items-center justify-between mb-3">
@@ -120,9 +116,6 @@ export default function InsightsPage() {
           </div>
           <div className="flex items-end space-x-4">
             <p className="text-3xl font-bold">{loadingLive ? "—" : priceHistory.length > 0 ? `${positiveScore}%` : "—"}</p>
-            <div className="flex items-end space-x-1 pb-1">
-              {sentimentSparkline.map((v, i) => (<div key={i} className="w-3 bg-[#10B981]/60 rounded-t-sm" style={{ height: `${v * 0.4}px` }} />))}
-            </div>
           </div>
           <p className="text-xs text-gray-500 mt-1">{priceHistory.length > 0 ? "Based on scraped history" : "Run n8n to collect data"}</p>
         </GlassCard>
@@ -221,44 +214,6 @@ export default function InsightsPage() {
               </div>
             ))}
           </div>
-          {!showAllFeed && competitorFeed.length > 3 && (
-            <button onClick={() => setShowAllFeed(true)} className="mt-4 text-sm text-[#2563EB] hover:underline flex items-center space-x-1">
-              <span>View All Activity</span><ArrowRight className="w-4 h-4" />
-            </button>
-          )}
-        </GlassCard>
-      </motion.div>
-
-      {/* Alerts */}
-      <motion.div variants={fadeUp} id="alerts-section">
-        <GlassCard className="p-6">
-          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => setAlertsExpanded(!alertsExpanded)}>
-            <SectionTitle>
-              <Bell className="w-5 h-5 text-[#EF4444]" /><span>Active Alerts</span>
-              <span className="ml-2 w-5 h-5 bg-[#EF4444] rounded-full text-white text-xs flex items-center justify-center font-bold">{activeAlerts.length}</span>
-            </SectionTitle>
-            <div className="flex items-center space-x-3">
-              <button className="text-xs text-gray-500 hover:text-[#2563EB] flex items-center space-x-1"><Settings className="w-3 h-3" /><span>Settings</span></button>
-              {alertsExpanded ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
-            </div>
-          </div>
-          <AnimatePresence>
-            {alertsExpanded && (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-3 overflow-hidden">
-                {activeAlerts.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-8">No active alerts. You&apos;re all caught up! 🎉</p>
-                ) : (
-                  activeAlerts.map((alert) => (
-                    <div key={alert.id} className={`flex items-start space-x-3 p-4 rounded-xl border ${alert.type === "urgent" ? "border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/5" : alert.type === "warning" ? "border-orange-200 dark:border-orange-500/30 bg-orange-50 dark:bg-orange-500/5" : "border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/5"}`}>
-                      <alert.icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${alert.type === "urgent" ? "text-[#EF4444]" : alert.type === "warning" ? "text-[#F97316]" : "text-[#2563EB]"}`} />
-                      <div className="flex-1"><p className="text-sm font-medium">{alert.text}</p><span className="text-xs text-gray-400">{alert.time}</span></div>
-                      <button onClick={() => dismiss(alert.id)} className="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 transition"><X className="w-4 h-4 text-gray-400" /></button>
-                    </div>
-                  ))
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
         </GlassCard>
       </motion.div>
 
@@ -273,9 +228,6 @@ export default function InsightsPage() {
               <li className="flex items-start space-x-2"><span className="text-[#2563EB] font-bold">•</span><span>Run the n8n workflow to collect today&apos;s pricing data and AI summaries.</span></li>
             </ul>
           </div>
-          <button className="px-5 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-lg font-medium text-sm flex items-center space-x-2 shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all transition">
-            <Download className="w-4 h-4" /><span>Download Full Report (PDF)</span>
-          </button>
         </GlassCard>
       </motion.div>
 

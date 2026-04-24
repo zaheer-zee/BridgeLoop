@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, Search, HelpCircle, User, Bell, Box, Sun, Moon, X, MessageSquare } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, Package, Search, HelpCircle, User, Bell, Box, Sun, Moon, X, MessageSquare, LogOut } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react';
 import { useTheme } from 'next-themes';
 
 const BackgroundParticles = dynamic(() => import('@/components/BackgroundParticles'), { ssr: false });
@@ -11,11 +12,25 @@ import ChatWidget from '@/components/ChatWidget';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const { theme, setTheme } = useTheme();
   const [alertOpen, setAlertOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  if (status === "loading" || status === "unauthenticated") {
+    return <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0A0A0A]">
+      <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>;
+  }
   
   const navItems = [
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
@@ -79,6 +94,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
            >
              {mounted && (theme === 'dark' ? <Sun className="w-5 h-5" suppressHydrationWarning={true} /> : <Moon className="w-5 h-5" suppressHydrationWarning={true} />)}
              <span>{mounted ? (theme === 'dark' ? 'Light Mode' : 'Dark Mode') : 'Theme'}</span>
+           </button>
+
+           <button
+             onClick={() => signOut({ callbackUrl: '/login' })}
+             className="flex items-center space-x-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all w-full"
+           >
+             <LogOut className="w-5 h-5" suppressHydrationWarning={true} />
+             <span>Sign Out</span>
            </button>
         </div>
       </aside>

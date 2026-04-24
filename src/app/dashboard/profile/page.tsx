@@ -1,8 +1,10 @@
 "use client";
 import React from 'react';
 import { User, Building, CreditCard, ShieldCheck } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 
 export default function ProfilePage() {
+  const { data: session } = useSession();
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-12">
       <div className="mb-8">
@@ -19,11 +21,11 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
            <div className="space-y-1">
              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Full Name</label>
-             <input type="text" defaultValue="Alex Carter" className="w-full bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl p-3 focus:outline-none focus:border-cyan-500" />
+             <input type="text" defaultValue={session?.user?.name || "Alex Carter"} className="w-full bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl p-3 focus:outline-none focus:border-cyan-500" />
            </div>
            <div className="space-y-1">
              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email Address</label>
-             <input type="email" defaultValue="alex@pro-retail.com" className="w-full bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl p-3 focus:outline-none focus:border-cyan-500" />
+             <input type="email" defaultValue={session?.user?.email || "alex@pro-retail.com"} disabled className="w-full bg-gray-100 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-xl p-3 focus:outline-none text-gray-500 cursor-not-allowed" />
            </div>
            <div className="space-y-1">
              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Business Name</label>

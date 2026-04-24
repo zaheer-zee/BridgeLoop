@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Trash2, ExternalLink, Loader2, Globe, X } from "lucide-react";
-import { getTrackedItems, addTrackedItem, deleteTrackedItem, TrackedItem } from "@/lib/api";
+import { Plus, Trash2, ExternalLink, Loader2, Globe, X, Play } from "lucide-react";
+import { getTrackedItems, addTrackedItem, deleteTrackedItem, runPipeline, TrackedItem } from "@/lib/api";
 
 export default function TrackedPage() {
   const [items, setItems] = useState<TrackedItem[]>([]);
@@ -11,6 +11,7 @@ export default function TrackedPage() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: "", url: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [runningPipeline, setRunningPipeline] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchItems = async () => {
@@ -65,15 +66,39 @@ export default function TrackedPage() {
             Add competitor URLs to monitor. Our AI scrapes them daily.
           </p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={() => setShowModal(true)}
-          className="flex items-center space-x-2 px-5 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all transition"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Add Competitor</span>
-        </motion.button>
+        <div className="flex space-x-3">
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={async () => {
+              setRunningPipeline(true);
+              try { 
+                await runPipeline(); 
+                alert("Pipeline completed! Data is now live.");
+                fetchItems(); 
+              } catch { 
+                alert("Pipeline failed"); 
+              } finally { 
+                setRunningPipeline(false); 
+              }
+            }}
+            disabled={runningPipeline}
+            className="flex items-center space-x-2 px-5 py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white font-bold rounded-xl shadow-md hover:shadow-lg shadow-orange-500/20 transition-all disabled:opacity-50"
+          >
+            {runningPipeline ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
+            <span>{runningPipeline ? "Running AI..." : "Run AI Pipeline"}</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setShowModal(true)}
+            className="flex items-center space-x-2 px-5 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl shadow-md hover:shadow-lg shadow-cyan-500/20 transition-all"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Add Competitor</span>
+          </motion.button>
+        </div>
       </div>
 
       {/* Error */}

@@ -74,3 +74,12 @@ export async function scrapeUrl(url: string): Promise<{ text: string }> {
   if (!res.ok) throw new Error("Scraping failed");
   return res.json();
 }
+
+export async function runPipeline(): Promise<any> {
+  const res = await fetch(`${API_URL}/run-pipeline`, {
+    method: "POST",
+    headers: NGROK_HEADERS,
+  });
+  if (!res.ok) throw new Error("Pipeline failed");
+  return res.json();
+}
